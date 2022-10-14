@@ -1,15 +1,19 @@
-LUA_DIR=/usr/local
-LUA_LIBDIR=$(LUA_DIR)/lib/lua/5.1
-LIBFLAG= -shared -fpic
 
-hello.so:	hello.c
-	$(CC) -o hello.so $(LIBFLAG) $(CFLAGS) hello.c -I$(LUA_LIBDIR) -llua
+CFLAGS  := $(shell pkg-config luajit --cflags)
+LDLIBS  := $(shell pkg-config luajit --libs)
+LDFLAGS := -shared -fpic
+
+all: hello.so
+
+hello.so: hello.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LDLIBS)
+
+hello.dll: hello.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LDLIBS)
+
+hello.dylib: hello.c
+	$(CC) $(CPPFLAGS) $(CFLAGS) $(LDFLAGS) $< -o $@ $(LDLIBS)
 
 clean:
 	$(RM) hello.so
 
-test: hello.so
-	shake test.lua
-
-rock:
-	luarocks make hello-scm-1.rockspec

@@ -1,19 +1,31 @@
-#include "lua.h"
+
 #include "lauxlib.h"
 
-#define MESSAGE "hello world!"
+#define LEN(array) (sizeof(array) / sizeof(array[0]))
+
+typedef struct {
+	char *data;
+	size_t size;
+} String;
+
+void nvim_err_writeln(String str);
+
+#define MESSAGE "Hello World!"
 
 int say_hello(lua_State *L) {
-    lua_pushstring(L, MESSAGE);
-    return 1;
+	String msg = { .data =  MESSAGE, .size =  LEN(MESSAGE) - 1 };
+
+	nvim_err_writeln(msg);
+
+	lua_pushstring(L, msg.data); // return
+	return 1;
 }
 
-static const struct luaL_Reg functions [] = {
-    {"say_hello", say_hello},
-    {NULL, NULL}
-};
-
 int luaopen_hello(lua_State *L) {
-    luaL_register(L, "hello", functions);
-    return 1;
+	static const struct luaL_Reg M[] = {
+		{ "say_hello", say_hello },
+		{ NULL, NULL },
+	};
+	luaL_register(L, "hello", M);
+	return 1;
 }
